@@ -1,7 +1,10 @@
+import os
 import tkinter as tk
 from tkinter import Canvas, Tk
 import pyautogui
 from PIL import Image
+
+from datetime import datetime
 
 class ScreenCapture:
     def __init__(self, root):
@@ -24,6 +27,10 @@ class ScreenCapture:
         self.canvas.bind("<ButtonPress-1>", self.on_press)
         self.canvas.bind("<B1-Motion>", self.on_drag)
         self.canvas.bind("<ButtonRelease-1>", self.on_release)
+
+        # controla nome e localização dos arquivos
+        os.makedirs("images", exist_ok=True)
+        self.current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
     def on_press(self, event):
         # Registra a posição inicial do clique
@@ -60,8 +67,7 @@ class ScreenCapture:
 
         # Captura a região e salva a imagem
         screenshot = pyautogui.screenshot(region=(x, y, width, height))
-        screenshot.save("captura_area.png")
-        print(f"Captura salva como 'captura_area.png'")
+        screenshot.save(f"images/{self.current_time}.png")
 
     def cancel_capture(self, event):
         self.root.destroy()
