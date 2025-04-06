@@ -2,15 +2,17 @@ import os
 import sys
 import keyboard
 from PyQt6.QtWidgets import QApplication,QSystemTrayIcon, QMessageBox, QMenu, QWidget, QVBoxLayout, QPushButton, QLabel, QStyleFactory
-from PyQt6.QtGui import QPixmap, QIcon, QAction
+from PyQt6.QtGui import QPixmap, QIcon, QAction, QFont
 from PyQt6.QtCore import Qt
 from tkinter import Tk
 from screencapture import ScreenCapture
+from PIL import Image
+import pytesseract
 
 import xml.etree.ElementTree as ET
 
 
-
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract'
 
 class MeuApp(QWidget):
     def __init__(self):
@@ -44,10 +46,19 @@ class MeuApp(QWidget):
         self.botao = QPushButton("Clique aqui ou a tecla F9", self)
         self.botao.clicked.connect(self.acao_botao)
         layout.addWidget(self.botao)
+
+        custom_font = QFont()
+        custom_font.setWeight(55)
+        QApplication.setFont(custom_font, "QLabel")
         
         # Label de saída
         self.label_resultado = QLabel("Resultado aparecerá aqui", self)
         self.label_resultado.setMinimumSize(600,600)
+
+        self.label_resultado_ocr = QLabel("Resultado ocr aparecerá aqui", self)
+
+        
+        self.label_resultado_ocr.setMinimumSize(600,600)
         
         self.config_hotkey()
 
@@ -88,11 +99,13 @@ class MeuApp(QWidget):
         """Inicializa a captura de tela, salva a imagem"""   
         try:
             result = self.start_sc()
+            result_ocr = pytesseract.image_to_string(f'./images/{result}.png', lang='jpn+eng')
             pixmap = QPixmap(f'./images/{result}.png').scaled(self.label_resultado.size(), aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
             self.label_resultado.setPixmap(pixmap)
+            self.label_resultado_ocr.setText(result_ocr)
             self.show()
         except Exception as e:
-            print(self.current_time, e)
+            print(e)
         
     def show_window(self):
         """Mostra a janela principal."""
