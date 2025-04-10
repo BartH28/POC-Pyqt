@@ -11,8 +11,18 @@ import pytesseract
 
 import xml.etree.ElementTree as ET
 
+# Caminho da pasta onde está o tesseract.exe
+def get_tesseract_path():
+    if getattr(sys, 'frozen', False):
+        # Se estiver rodando como .exe (PyInstaller)
+        base_path = sys._MEIPASS
+    else:
+        # Rodando em modo desenvolvimento
+        base_path = os.path.dirname(os.path.abspath(__file__))
 
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract'
+    return os.path.join(base_path, "tesseract", "tesseract.exe")
+
+pytesseract.pytesseract.tesseract_cmd = get_tesseract_path()
 
 class MeuApp(QWidget):
     def __init__(self):
@@ -44,7 +54,7 @@ class MeuApp(QWidget):
 
         # Botão
         self.botao = QPushButton("Clique aqui ou a tecla F9", self)
-        self.botao.clicked.connect(self.acao_botao)
+        self.botao.clicked.connect(self.toggle_visibility)
         layout.addWidget(self.botao)
 
         custom_font = QFont()
